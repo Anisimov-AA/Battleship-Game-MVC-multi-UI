@@ -9,9 +9,9 @@ import java.util.Random;
 public class BattleshipModel implements IBattleshipModel {
 
   private static final int GRID_SIZE = 10;
+
   // Internal grid showing where ships actually are
   private final ShipType[][] shipGrid;
-
   // Ships to place
   private static final ShipType[] SHIP_TYPES = {
       ShipType.AIRCRAFT_CARRIER,
@@ -20,8 +20,11 @@ public class BattleshipModel implements IBattleshipModel {
       ShipType.DESTROYER,
       ShipType.PATROL_BOAT
   };
-
   private final Random random;
+
+  // What the player can see (hits/misses/unknown)
+  private final CellState[][] playerGrid;
+  private int guessCount; // Current number of guesses made by the player
 
   /**
    * Creates a new game with custom random generator (mainly for testing)
@@ -31,6 +34,9 @@ public class BattleshipModel implements IBattleshipModel {
   public BattleshipModel(Random random) {
     this.shipGrid = new ShipType[GRID_SIZE][GRID_SIZE];
     this.random = random != null ? random : new Random();
+
+    this.playerGrid = new CellState[GRID_SIZE][GRID_SIZE];
+    this.guessCount = 0;
   }
 
   /**
@@ -42,18 +48,20 @@ public class BattleshipModel implements IBattleshipModel {
 
   @Override
   public void startGame() {
-    clearGrid();
+    clearGrids();
     placeShipsRandomly();
+    this.guessCount = 0;
   }
 
   /**
-   * Clears the grid for a new game
-   * Sets all ship grid cells to null
+   * Clears both ship and player grids for a new game
+   * Sets all ship grid cells to null and all player grid cells to UNKNOWN
    */
-  private void clearGrid() {
+  private void clearGrids() {
     for (int row = 0; row < GRID_SIZE; row++) {
       for (int col = 0; col < GRID_SIZE; col++) {
         shipGrid[row][col] = null; // mark cell as empty
+        playerGrid[row][col] = CellState.UNKNOWN; // mark cell as unknown
       }
     }
   }
@@ -137,12 +145,38 @@ public class BattleshipModel implements IBattleshipModel {
 
   @Override
   public boolean makeGuess(int row, int col) {
-    throw new UnsupportedOperationException("Not implemented yet");
+    // game over check
+    if(isGameOver()) {
+      throw new IllegalStateException("Game is over");
+    }
+
+    // bounds check
+    if(row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) {
+      throw new IllegalArgumentException("Coordinates out of bounds: (" + row + ", " + col + ")");
+    }
+
+    // check if cell already guessed
+    if(playerGrid[row][col] != CellState.UNKNOWN) {
+      throw new IllegalArgumentException("Cell already guessed: (" + row + ", " + col + ")");
+    }
+
+    // update guess counter
+    this.guessCount++;
+
+    // update player grid (
+    // check if there's a ship at this position
+    if (shipGrid[row][col] != null) {
+      playerGrid[row][col] = CellState.HIT;
+      return true;
+    } else {
+      playerGrid[row][col] = CellState.MISS;
+      return false;
+    }
   }
 
   @Override
   public boolean isGameOver() {
-    throw new UnsupportedOperationException("Not implemented yet");
+    return false;
   }
 
   @Override
@@ -152,7 +186,7 @@ public class BattleshipModel implements IBattleshipModel {
 
   @Override
   public int getGuessCount() {
-    throw new UnsupportedOperationException("Not implemented yet");
+    return this.guessCount;
   }
 
   @Override
@@ -162,7 +196,14 @@ public class BattleshipModel implements IBattleshipModel {
 
   @Override
   public CellState[][] getCellGrid() {
-    throw new UnsupportedOperationException("Not implemented yet");
+    CellState[][] copy = new CellState[GRID_SIZE][GRID_SIZE];
+    for (int row = 0; row < GRID_SIZE; row++) {
+      for (int col = 0; col < GRID_SIZE; col++) {
+        copy[row][col] = playerGrid[row][col];
+      }
+    }
+
+    return copy;
   }
 
   @Override
