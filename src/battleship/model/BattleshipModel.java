@@ -25,6 +25,7 @@ public class BattleshipModel implements IBattleshipModel {
   // What the player can see (hits/misses/unknown)
   private final CellState[][] playerGrid;
   private int guessCount; // Current number of guesses made by the player
+  private static final int MAX_GUESSES = 50;
 
   /**
    * Creates a new game with custom random generator (mainly for testing)
@@ -176,12 +177,20 @@ public class BattleshipModel implements IBattleshipModel {
 
   @Override
   public boolean isGameOver() {
-    return false;
+    return areAllShipsSunk() || this.guessCount >= MAX_GUESSES;
   }
 
   @Override
   public boolean areAllShipsSunk() {
-    throw new UnsupportedOperationException("Not implemented yet");
+    for (int row = 0; row < GRID_SIZE; row++) {
+      for (int col = 0; col < GRID_SIZE; col++) {
+        if(shipGrid[row][col] != null && playerGrid[row][col] != CellState.HIT) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   @Override
@@ -191,7 +200,7 @@ public class BattleshipModel implements IBattleshipModel {
 
   @Override
   public int getMaxGuesses() {
-    throw new UnsupportedOperationException("Not implemented yet");
+    return MAX_GUESSES;
   }
 
   @Override
@@ -208,6 +217,10 @@ public class BattleshipModel implements IBattleshipModel {
 
   @Override
   public ShipType[][] getShipGrid() {
+    if (!isGameOver()) {
+      throw new IllegalStateException("Cannot reveal ships until game is over");
+    }
+
     // create deep copy to prevent external modification
     ShipType[][] copy = new ShipType[GRID_SIZE][GRID_SIZE];
     for (int row = 0; row < GRID_SIZE; row++) {
