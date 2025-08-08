@@ -54,12 +54,35 @@ class BattleshipConsoleControllerTest {
     // provide user input "A5"
     StringReader userInput = new StringReader("A5\n");
     controller = new BattleshipConsoleController(userInput, mockView);
-    mockModel.setGameOver(false);
+    mockModel.setGameOver(false); // allow one guess, then end
 
     controller.playGame(mockModel);
 
     assertTrue(mockModel.wasMakeGuessCalled());
     assertTrue(mockModel.wasGuessAtCoordinates(0, 5));
+  }
+
+  /**
+   * Tests that controller displays all required messages during game flow.
+   *
+   * Why: Verify controller provides complete user experience with all necessary displays.
+   */
+  @Test
+  void playGame_shouldDisplayAllRequiredMessages() {
+    StringReader userInput = new StringReader("A5\n");
+    controller = new BattleshipConsoleController(userInput, mockView);
+    mockModel.setGameOver(false);  // allow one guess, then end
+
+    controller.playGame(mockModel);
+
+    // verify all expected display calls were made
+    assertTrue(mockView.wasWelcomeMessageDisplayed(), "Should display welcome message");
+    assertTrue(mockView.wasPromptMessageDisplayed(), "Should display prompt for user input");
+    assertTrue(mockView.wasGuessCountDisplayed(), "Should display guess count");
+    assertTrue(mockView.wasMaxGuessesDisplayed(), "Should display max guesses");
+    assertTrue(mockView.wasCellGridDisplayed(), "Should display game grid");
+    assertTrue(mockView.wasHitMessageDisplayed() || mockView.wasMissMessageDisplayed(), "Should display hit or miss result");
+    assertTrue(mockView.wasGameOverDisplayed(), "Should display game over message");
   }
 
   private static class MockBattleshipModel implements IBattleshipModel {
@@ -122,15 +145,79 @@ class BattleshipConsoleControllerTest {
   }
 
   private static class MockBattleshipView implements IBattleshipView {
-    @Override public void displayWelcomeMessage() {}
-    @Override public void displayPromptMessage() {}
-    @Override public void displayCellGrid(CellState[][] cellGrid) {}
-    @Override public void displayShipGrid(ShipType[][] shipGrid) {}
-    @Override public void displayGuessCount(int currentGuesses) {}
-    @Override public void displayMaxGuesses(int maxGuesses) {}
-    @Override public void displayErrorMessage(String message) {}
-    @Override public void displayGameOver(boolean win) {}
-    @Override public void displayHitMessage() {}
-    @Override public void displayMissMessage() {}
+
+    // Track all display methods the controller uses
+    private boolean welcomeMessageDisplayed = false;
+    private boolean promptMessageDisplayed = false;
+    private boolean hitMessageDisplayed = false;
+    private boolean missMessageDisplayed = false;
+    private boolean errorMessageDisplayed = false;
+    private boolean gameOverDisplayed = false;
+    private boolean guessCountDisplayed = false;
+    private boolean maxGuessesDisplayed = false;
+    private boolean cellGridDisplayed = false;
+    private boolean shipGridDisplayed = false;  // Track end-game ship reveal
+
+    @Override
+    public void displayWelcomeMessage() {
+      welcomeMessageDisplayed = true;
+    }
+
+    @Override
+    public void displayPromptMessage() {
+      promptMessageDisplayed = true;
+    }
+
+    @Override
+    public void displayHitMessage() {
+      hitMessageDisplayed = true;
+    }
+
+    @Override
+    public void displayMissMessage() {
+      missMessageDisplayed = true;
+    }
+
+    @Override
+    public void displayErrorMessage(String message) {
+      errorMessageDisplayed = true;
+    }
+
+    @Override
+    public void displayGameOver(boolean win) {
+      gameOverDisplayed = true;
+    }
+
+    @Override
+    public void displayGuessCount(int currentGuesses) {
+      guessCountDisplayed = true;
+    }
+
+    @Override
+    public void displayMaxGuesses(int maxGuesses) {
+      maxGuessesDisplayed = true;
+    }
+
+    @Override
+    public void displayCellGrid(CellState[][] cellGrid) {
+      cellGridDisplayed = true;
+    }
+
+    @Override
+    public void displayShipGrid(ShipType[][] shipGrid) {
+      shipGridDisplayed = true;  // Track ship position reveal at game end
+    }
+
+    // Verification getters for all tracked methods
+    public boolean wasWelcomeMessageDisplayed() { return welcomeMessageDisplayed; }
+    public boolean wasPromptMessageDisplayed() { return promptMessageDisplayed; }
+    public boolean wasHitMessageDisplayed() { return hitMessageDisplayed; }
+    public boolean wasMissMessageDisplayed() { return missMessageDisplayed; }
+    public boolean wasErrorMessageDisplayed() { return errorMessageDisplayed; }
+    public boolean wasGameOverDisplayed() { return gameOverDisplayed; }
+    public boolean wasGuessCountDisplayed() { return guessCountDisplayed; }
+    public boolean wasMaxGuessesDisplayed() { return maxGuessesDisplayed; }
+    public boolean wasCellGridDisplayed() { return cellGridDisplayed; }
+    public boolean wasShipGridDisplayed() { return shipGridDisplayed; }  // NEW
   }
 }
