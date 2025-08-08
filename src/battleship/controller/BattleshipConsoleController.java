@@ -53,33 +53,39 @@ public class BattleshipConsoleController implements IBattleshipController {
       // how game state
       displayGameState(model);
 
-      // ask user for input
-      view.displayPromptMessage();
+      while (!model.isGameOver()) {
+        // ask user for input
+        view.displayPromptMessage();
 
-      if (scanner.hasNextLine()) {
-        String userInput = scanner.nextLine().trim();
+        if (scanner.hasNextLine()) {
+          String userInput = scanner.nextLine().trim();
 
-        try {
-          // parse user input to get coordinates
-          int[] coordinates = parseGuess(userInput);
+          try {
+            // parse user input to get coordinates
+            int[] coordinates = parseGuess(userInput);
 
-          // make the guess with parsed coordinates
-          boolean wasHit = model.makeGuess(coordinates[0], coordinates[1]);
+            // make the guess with parsed coordinates
+            boolean wasHit = model.makeGuess(coordinates[0], coordinates[1]);
 
-          // show the result to user
-          if(wasHit) {
-            view.displayHitMessage();
-          } else {
-            view.displayMissMessage();
+            // show the result to user
+            if(wasHit) {
+              view.displayHitMessage();
+            } else {
+              view.displayMissMessage();
+            }
+
+            // show updated game state
+            displayGameState(model);
+          } catch (IllegalArgumentException e) {
+            // handle parsing errors or model validation errors
+            view.displayErrorMessage(e.getMessage());
           }
-
-          // show updated game state
-          displayGameState(model);
-        } catch (IllegalArgumentException e) {
-          // handle parsing errors or model validation errors
-          view.displayErrorMessage(e.getMessage());
         }
       }
+
+      // show final result
+      view.displayGameOver(model.areAllShipsSunk());
+      view.displayShipGrid(model.getShipGrid());
 
     } catch (IOException e) { // if view has trouble displaying (disk full, broken console, etc.)
       System.err.println("Display error: " + e.getMessage());
