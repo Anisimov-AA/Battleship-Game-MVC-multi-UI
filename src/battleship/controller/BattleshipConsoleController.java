@@ -113,7 +113,7 @@ public class BattleshipConsoleController implements IBattleshipController {
   int[] parseGuess(String input) {
     // check format: exactly 2 characters
     if (input == null || input.length() != 2) {
-      throw new IllegalArgumentException("Invalid format. Use format like A5.");
+      throw new IllegalArgumentException("Invalid input. Input two characters only (e.g., A5)");
     }
 
     char rowChar = input.charAt(0); // get first character (row letter)

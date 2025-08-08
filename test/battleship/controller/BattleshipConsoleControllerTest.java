@@ -54,8 +54,6 @@ class BattleshipConsoleControllerTest {
     // provide user input "A5"
     StringReader userInput = new StringReader("A5\n");
     controller = new BattleshipConsoleController(userInput, mockView);
-    mockModel.setGameOver(false); // allow one guess, then end
-
     controller.playGame(mockModel);
 
     assertTrue(mockModel.wasMakeGuessCalled());
@@ -71,8 +69,6 @@ class BattleshipConsoleControllerTest {
   void playGame_shouldDisplayAllRequiredMessages() {
     StringReader userInput = new StringReader("A5\n");
     controller = new BattleshipConsoleController(userInput, mockView);
-    mockModel.setGameOver(false);  // allow one guess, then end
-
     controller.playGame(mockModel);
 
     // verify all expected display calls were made
@@ -85,6 +81,45 @@ class BattleshipConsoleControllerTest {
     assertTrue(mockView.wasGameOverDisplayed(), "Should display game over message");
   }
 
+  /**
+   * Test "AA", "A", etc.
+   */
+  @Test
+  void playGame_shouldHandleInvalidFormat() {
+    StringReader invalidInput = new StringReader("AA\n");
+    controller = new BattleshipConsoleController(invalidInput, mockView);
+    controller.playGame(mockModel);
+
+    assertTrue(mockView.wasErrorMessageDisplayed(), "Should display error for invalid input");
+    assertFalse(mockModel.wasMakeGuessCalled(), "Should not call makeGuess for invalid input");
+  }
+
+  /**
+   * Test "K5", "Z3", etc.
+   */
+  @Test
+  void playGame_shouldHandleInvalidRow() {
+    StringReader invalidInput = new StringReader("K5\n");
+    controller = new BattleshipConsoleController(invalidInput, mockView);
+    controller.playGame(mockModel);
+
+    assertTrue(mockView.wasErrorMessageDisplayed(), "Should display error for invalid input");
+    assertFalse(mockModel.wasMakeGuessCalled(), "Should not call makeGuess for invalid input");
+  }
+
+  /**
+   * Test "AB", "A@", etc.
+   */
+  @Test
+  void playGame_shouldHandleInvalidColumn() {
+    StringReader invalidInput = new StringReader("AB\n");
+    controller = new BattleshipConsoleController(invalidInput, mockView);
+    controller.playGame(mockModel);
+
+    assertTrue(mockView.wasErrorMessageDisplayed(), "Should display error for invalid input");
+    assertFalse(mockModel.wasMakeGuessCalled(), "Should not call makeGuess for invalid input");
+  }
+
   private static class MockBattleshipModel implements IBattleshipModel {
 
     // Track method calls
@@ -92,8 +127,8 @@ class BattleshipConsoleControllerTest {
     private boolean makeGuessCalled = false; // track if makeGuess was called
     private int lastGuessRow = -1; // remember row coordinate
     private int lastGuessCol = -1; // remember column coordinate
-    private boolean gameOver = true; // stops loop
-    private int guessCount = 0; // track how many guesses made
+    private boolean gameOver = false; // stops loop
+    private int isGameOverCallCount = 0; // to enter the loop once
 
     @Override
     public void startGame() {
@@ -105,7 +140,6 @@ class BattleshipConsoleControllerTest {
       this.makeGuessCalled = true; // record that makeGuess was called
       this.lastGuessRow = row; // remember the row that was guessed
       this.lastGuessCol = col; // remember the column that was guessed
-      this.guessCount++;
 
       // return predictable result for testing: A5 (0,5) hits, everything else misses
       return row == 0 && col == 5;
@@ -113,7 +147,8 @@ class BattleshipConsoleControllerTest {
 
     @Override
     public boolean isGameOver() {
-      return gameOver || guessCount >= 1;
+      isGameOverCallCount++; // count each time loop checks
+      return gameOver || isGameOverCallCount >= 2; // allow one loop iteration
     }
 
     // Check if startGame was called
