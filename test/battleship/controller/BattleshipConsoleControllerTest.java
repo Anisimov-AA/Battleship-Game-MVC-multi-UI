@@ -24,15 +24,41 @@ class BattleshipConsoleControllerTest {
   void setUp() {
     mockModel = new MockBattleshipModel();
     mockView = new MockBattleshipView();
-
-    StringReader emptyInput = new StringReader("");
-    controller = new BattleshipConsoleController(emptyInput, mockView);
   }
 
-  // Minimal mock implementations
+  /**
+   * Tests that controller calls model.startGame() when playGame() is executed.
+   *
+   * Why: Controller's primary responsibility is to initialize the game
+   * by calling the model's startGame() method.
+   */
+  @Test
+  void playGame_shouldCallStartGame() {
+    StringReader emptyInput = new StringReader("");
+    controller = new BattleshipConsoleController(emptyInput, mockView);
+
+    // execute the controller's main method
+    controller.playGame(mockModel);
+
+    // verify the controller called startGame() on the model
+    assertTrue(mockModel.wasStartGameCalled(), "Controller must call model.startGame() to initialize the game");
+  }
 
   private static class MockBattleshipModel implements IBattleshipModel {
-    @Override public void startGame() {}
+
+    // Track method calls
+    private boolean startGameCalled = false; // track if startGame was called
+
+    @Override
+    public void startGame() {
+      this.startGameCalled = true; // record that this was called
+    }
+
+    // Check if startGame was called
+    public boolean wasStartGameCalled() {
+      return startGameCalled;
+    }
+
     @Override public boolean makeGuess(int row, int col) { return false; }
     @Override public boolean isGameOver() { return true; }
     @Override public boolean areAllShipsSunk() { return false; }
