@@ -41,10 +41,32 @@ public class BattleshipConsoleController implements IBattleshipController {
   public void playGame(IBattleshipModel model) {
     // view methods throw IOException, so we need to handle it
     try {
+      // start the game
+      model.startGame();
+
+      // show welcome message
       view.displayWelcomeMessage();
-      view.displayErrorMessage("Controller is not fully implemented yet!");
+
+      // how game state
+      displayGameState(model);
+
+      // temporary message
+      view.displayErrorMessage("Game loop not implemented yet");
+
     } catch (IOException e) { // if view has trouble displaying (disk full, broken console, etc.)
       System.err.println("Display error: " + e.getMessage());
     }
   }
+
+  /**
+   * Helper method that displays the current game state information
+   * @param model the battleship model to get current game state from
+   * @throws IOException if there's an error displaying information to the user
+   */
+  private void displayGameState(IBattleshipModel model) throws IOException {
+    view.displayGuessCount(model.getGuessCount());
+    view.displayMaxGuesses(model.getMaxGuesses());
+    view.displayCellGrid(model.getCellGrid());
+  }
+
 }
