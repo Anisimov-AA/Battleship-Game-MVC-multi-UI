@@ -1,8 +1,11 @@
 package battleship.controller;
 
 import battleship.model.IBattleshipModel;
+import battleship.view.BattleshipConsoleView;
 import battleship.view.IBattleshipView;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -50,8 +53,33 @@ public class BattleshipConsoleController implements IBattleshipController {
       // how game state
       displayGameState(model);
 
-      // temporary message
-      view.displayErrorMessage("Game loop not implemented yet");
+      // ask user for input
+      view.displayPromptMessage();
+
+      if (scanner.hasNextLine()) {
+        String userInput = scanner.nextLine().trim();
+
+        try {
+          // parse user input to get coordinates
+          int[] coordinates = parseGuess(userInput);
+
+          // make the guess with parsed coordinates
+          boolean wasHit = model.makeGuess(coordinates[0], coordinates[1]);
+
+          // show the result to user
+          if(wasHit) {
+            view.displayHitMessage();
+          } else {
+            view.displayMissMessage();
+          }
+
+          // show updated game state
+          displayGameState(model);
+        } catch (IllegalArgumentException e) {
+          // handle parsing errors or model validation errors
+          view.displayErrorMessage(e.getMessage());
+        }
+      }
 
     } catch (IOException e) { // if view has trouble displaying (disk full, broken console, etc.)
       System.err.println("Display error: " + e.getMessage());
@@ -69,4 +97,36 @@ public class BattleshipConsoleController implements IBattleshipController {
     view.displayCellGrid(model.getCellGrid());
   }
 
+  /**
+   * Parses user input like "A5" into row and column coordinates.
+   *
+   * @param input the user input string (e.g., "A5", "B3")
+   * @return an array with [row, col] where both are 0-based indices
+   * @throws IllegalArgumentException if the input format is invalid
+   */
+  int[] parseGuess(String input) {
+    // check format: exactly 2 characters
+    if (input == null || input.length() != 2) {
+      throw new IllegalArgumentException("Invalid format. Use format like A5.");
+    }
+
+    char rowChar = input.charAt(0); // get first character (row letter)
+    char colChar = input.charAt(1); // get second character (column number)
+
+    // check if row is valid letter (A-J)
+    if(rowChar < 'A' || rowChar > 'J') {
+      throw new IllegalArgumentException("Row must be A-J");
+    }
+
+    // check if column is valid digit (0-9)
+    if(colChar < '0' || colChar > '9') {
+      throw new IllegalArgumentException("Column must be 0-9");
+    }
+
+    // convert letters to numbers
+    int row = rowChar - 'A';
+    int col = colChar - '0';
+
+    return new int[]{row, col};
+  }
 }
