@@ -42,23 +42,26 @@ public class BattleshipConsoleController implements IBattleshipController {
    */
   @Override
   public void playGame(IBattleshipModel model) {
+    if (model == null) {
+      throw new IllegalArgumentException("Model cannot be null");
+    }
+
     // view methods throw IOException, so we need to handle it
     try {
       // start the game
       model.startGame();
 
-      // show welcome message
+      // show welcome message and initial game state
       view.displayWelcomeMessage();
-
-      // how game state
       displayGameState(model);
 
+      // main game loop
       while (!model.isGameOver()) {
         // ask user for input
         view.displayPromptMessage();
 
         if (scanner.hasNextLine()) {
-          String userInput = scanner.nextLine().trim();
+          String userInput = scanner.nextLine().trim().toUpperCase(); // case insensitive + trim whitespace
 
           try {
             // parse user input to get coordinates
@@ -77,17 +80,24 @@ public class BattleshipConsoleController implements IBattleshipController {
             // show updated game state
             displayGameState(model);
           } catch (IllegalArgumentException e) {
-            // handle parsing errors or model validation errors
+            // bad input - user can fix it and continue:
+            // "AA" → show error → ask for input again
             view.displayErrorMessage(e.getMessage());
+          } catch (IllegalStateException e) {
+            // game over - no point asking for more input:
+            // game over → show error → stop asking for input
+            view.displayErrorMessage(e.getMessage());
+            break;
           }
         }
       }
 
-      // show final result
+      // game is over - display final results
       view.displayGameOver(model.areAllShipsSunk());
       view.displayShipGrid(model.getShipGrid());
 
-    } catch (IOException e) { // if view has trouble displaying (disk full, broken console, etc.)
+    } catch (IOException e) {
+      // if view has trouble displaying (disk full, broken console, etc.)
       System.err.println("Display error: " + e.getMessage());
     }
   }
@@ -111,27 +121,34 @@ public class BattleshipConsoleController implements IBattleshipController {
    * @throws IllegalArgumentException if the input format is invalid
    */
   int[] parseGuess(String input) {
-    // check format: exactly 2 characters
-    if (input == null || input.length() != 2) {
-      throw new IllegalArgumentException("Invalid input. Input two characters only (e.g., A5)");
+    // format validation
+    if (input == null || input.length() < 2) {
+      throw new IllegalArgumentException("Invalid input. Enter row (A-J) and column (0-9), e.g., A5");
     }
 
     char rowChar = input.charAt(0); // get first character (row letter)
-    char colChar = input.charAt(1); // get second character (column number)
+    String colStr = input.substring(1); // get remaining characters (column number)
 
     // check if row is valid letter (A-J)
     if(rowChar < 'A' || rowChar > 'J') {
-      throw new IllegalArgumentException("Row must be A-J");
+      throw new IllegalArgumentException("Invalid column. Row must be A-J");
     }
 
-    // check if column is valid digit (0-9)
-    if(colChar < '0' || colChar > '9') {
+    // parse and validate column number
+    int col;
+    try {
+      col = Integer.parseInt(colStr);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid column. Column must be a number");
+    }
+
+    // check if column is in valid range
+    if (col < 0 || col > 9) {
       throw new IllegalArgumentException("Column must be 0-9");
     }
 
     // convert letters to numbers
     int row = rowChar - 'A';
-    int col = colChar - '0';
 
     return new int[]{row, col};
   }
