@@ -89,8 +89,8 @@ JUnit 5 - Testing framework
 Mockito 5.9.0 - Mocking framework for controller tests  
   
 Libraries required for mock testing:  
-[byte-buddy 1.17.6](https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy/)  
-[byte-buddy-agent 1.17.6](https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent/)  
-[mockito-core 5.9.0](https://repo1.maven.org/maven2/org/mockito/mockito-core/)  
-[mockito-junit-jupiter 5.9.0](https://repo1.maven.org/maven2/org/mockito/mockito-junit-jupiter/)  
-[objenesis 3.4](https://repo1.maven.org/maven2/org/objenesis/objenesis/)  
+[byte-buddy](https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy/)  
+[byte-buddy-agent](https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent/)  
+[mockito-core](https://repo1.maven.org/maven2/org/mockito/mockito-core/)  
+[mockito-junit-jupiter](https://repo1.maven.org/maven2/org/mockito/mockito-junit-jupiter/)  
+[objenesis](https://repo1.maven.org/maven2/org/objenesis/objenesis/)  
