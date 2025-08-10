@@ -8,9 +8,9 @@ This project implements a classic Battleship game where players guess ship locat
 
 - Clean MVC architecture with proper separation of concerns
 - Interface-based design for flexibility and testability
-- Comprehensive unit testing
-- Both unit testing (model) and mock testing (controller) to practice different approaches
 - Input validation and error handling
+- Comprehensive unit testing (model)
+- Both manual and Mockito mock testing (controller) to practice different mocking approaches
 - Dependency Injection Pattern and loose coupling
 - Best Practices: SOLID principles, clean code, and professional testing strategies
 
