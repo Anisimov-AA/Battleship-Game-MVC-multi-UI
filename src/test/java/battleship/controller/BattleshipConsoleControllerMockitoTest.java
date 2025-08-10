@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
@@ -177,5 +178,60 @@ class BattleshipConsoleControllerMockitoTest {
 
     verify(mockView).displayErrorMessage(anyString());
     verify(mockModel, never()).makeGuess(anyInt(), anyInt());
+  }
+
+  /**
+   * Tests that controller handles IllegalStateException from model properly.
+   * Demonstrates testing the break; logic when game is already over.
+   */
+  @Test
+  void playGame_shouldHandleGameOverException() throws IOException {
+    // provide user input "A5"
+    StringReader userInput = new StringReader("A5\n");
+    controller = new BattleshipConsoleController(userInput, mockView);
+
+    // control mock behavior - allow loop to run, but makeGuess throws game over exception
+    when(mockModel.isGameOver()).thenReturn(false);  // Allow loop to run
+    when(mockModel.makeGuess(0, 5)).thenThrow(new IllegalStateException("Game is already over"));
+
+    // act
+    controller.playGame(mockModel);
+
+    // verify exception handling
+    verify(mockView).displayErrorMessage("Game is already over");  // Error message shown
+    verify(mockModel).makeGuess(0, 5);  // makeGuess was attempted
+  }
+
+  /**
+   * Tests controller handling multiple valid user inputs in sequence.
+   * Demonstrates realistic gameplay with multiple guesses.
+   */
+  @Test
+  void playGame_shouldHandleMultipleValidInputs() throws IOException {
+    // arrange - provide multiple user inputs
+    StringReader userInput = new StringReader("A5\nB3\nC7\n");
+    controller = new BattleshipConsoleController(userInput, mockView);
+
+    // control mock behavior - allow 3 guesses, then end
+    when(mockModel.isGameOver()).thenReturn(false, false, false, true);
+    when(mockModel.makeGuess(0, 5)).thenReturn(true);   // A5 hits
+    when(mockModel.makeGuess(1, 3)).thenReturn(false);  // B3 misses
+    when(mockModel.makeGuess(2, 7)).thenReturn(true);   // C7 hits
+    when(mockModel.getGuessCount()).thenReturn(0, 1, 2, 3);
+    when(mockModel.getMaxGuesses()).thenReturn(50);
+    when(mockModel.getCellGrid()).thenReturn(createEmptyGrid());
+    when(mockModel.areAllShipsSunk()).thenReturn(true);
+    when(mockModel.getShipGrid()).thenReturn(createEmptyShipGrid());
+
+    // act
+    controller.playGame(mockModel);
+
+    // verify all three guesses were processed correctly
+    verify(mockModel).makeGuess(0, 5);  // A5 processed
+    verify(mockModel).makeGuess(1, 3);  // B3 processed
+    verify(mockModel).makeGuess(2, 7);  // C7 processed
+    verify(mockView, times(2)).displayHitMessage();   // Expect 2 hits (A5, C7)
+    verify(mockView, times(1)).displayMissMessage();  // Expect 1 miss (B3)
+    verify(mockView, times(3)).displayPromptMessage(); // Expect 3 prompts
   }
 }
