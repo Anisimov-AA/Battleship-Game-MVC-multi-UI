@@ -6,13 +6,13 @@ A Java console application demonstrating the Model-View-Controller (MVC) design 
 
 This project implements a classic Battleship game where players guess ship locations on a 10x10 grid. The application showcases:
 
-- Clean MVC architecture with proper separation of concerns
-- Interface-based design for flexibility and testability
-- Input validation and error handling
-- Comprehensive unit testing (model)
-- Both manual and Mockito mock testing (controller) to practice different mocking approaches
-- Dependency Injection Pattern and loose coupling
-- Best Practices: SOLID principles, clean code, and professional testing strategies
+- Clean **MVC architecture** with proper separation of concerns
+- **Interface-based design** for flexibility and testability
+- **Input validation and error handling**
+- Comprehensive **unit testing** (model)
+- Both manual and Mockito **mock testing** (controller) to practice different mocking approaches
+- **Dependency Injection Pattern** and **loose coupling**
+- Best Practices: **SOLID principles**, **clean code**, and **professional testing strategies**
 
 <div align="center">
   <table>
