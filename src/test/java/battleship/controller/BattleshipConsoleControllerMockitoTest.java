@@ -22,28 +22,55 @@ class BattleshipConsoleControllerMockitoTest {
 
   @Mock  // Mockito implements ALL interface methods IBattleshipModel and returns default values
   private IBattleshipModel mockModel;
-
   @Mock  // Mockito implements ALL interface methods IBattleshipView and returns default values
   private IBattleshipView mockView;
-
   private BattleshipConsoleController controller;
 
-  @BeforeEach
-  void setUp() {
-    // Mocks are already created by @Mock annotation
-    // Only need to create controller with empty input
-    StringReader emptyInput = new StringReader("");
-    controller = new BattleshipConsoleController(emptyInput, mockView);
-  }
-
+  /**
+   * Tests that controller calls model.startGame() when playGame() is executed
+   */
   @Test
   void playGame_shouldCallStartGame() {
-    // control mock behavior - end game immediately (one loop only)
-    when(mockModel.isGameOver()).thenReturn(true);
+    // mocks are already created by @Mock annotation
+    // only need to create controller with empty input
+    StringReader emptyInput = new StringReader("");
+    controller = new BattleshipConsoleController(emptyInput, mockView);
+
+    // control mock behavior - allow one loop iteration, then end
+    when(mockModel.isGameOver()).thenReturn(true); // loop NEVER runs because condition is false
+
     // act
     controller.playGame(mockModel);
+
     // verify: was startGame() called on mockModel?
     verify(mockModel).startGame();
+  }
+
+  /**
+   * Tests that controller processes user input and calls model with correct coordinates
+   *
+   * User Input: "A5"
+   *      ↓
+   * parseGuess("A5") converts to [0, 5]
+   *      ↓
+   * model.makeGuess(0, 5) gets called
+   *      ↓
+   * verify(mockModel).makeGuess(0, 5) ← Checks this exact call happened
+   */
+  @Test
+  void playGame_shouldParseInputAndCallMakeGuess() {
+    // provide user input "A5"
+    StringReader userInput = new StringReader("A5\n");
+    controller = new BattleshipConsoleController(userInput, mockView);
+
+    // control mock behavior - allow one loop iteration, then end
+    when(mockModel.isGameOver()).thenReturn(false, true); // first false, then true
+
+    // act
+    controller.playGame(mockModel);
+
+    // verify - check that A5 was parsed as row=0, col=5
+    verify(mockModel).makeGuess(0, 5);
   }
 
 

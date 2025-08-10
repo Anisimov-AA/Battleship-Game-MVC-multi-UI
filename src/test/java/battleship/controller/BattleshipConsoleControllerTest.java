@@ -50,7 +50,7 @@ class BattleshipConsoleControllerTest {
    * Why: Input parsing and model coordination is core controller functionality.
    */
   @Test
-  void playGame_shouldCallMakeGuessWithParsedCoordinates() {
+  void playGame_shouldParseInputAndCallMakeGuess() {
     // provide user input "A5"
     StringReader userInput = new StringReader("A5\n");
     controller = new BattleshipConsoleController(userInput, mockView);
