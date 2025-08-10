@@ -3,6 +3,8 @@ package battleship.controller;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
@@ -126,6 +128,54 @@ class BattleshipConsoleControllerMockitoTest {
     return new ShipType[10][10];  // All nulls by default
   }
 
+  /**
+   * Test "AA", "A", etc.
+   */
+  @Test
+  void playGame_shouldHandleInvalidFormat() throws IOException {
+    // provide invalid input "AA" (two letters)
+    StringReader invalidInput = new StringReader("AA\n");
+    controller = new BattleshipConsoleController(invalidInput, mockView);
 
+    // control mock behavior - allow one loop iteration, then end
+    when(mockModel.isGameOver()).thenReturn(false, true);
 
+    // act
+    controller.playGame(mockModel);
+
+    // verify error handling
+    verify(mockView).displayErrorMessage(anyString()); // error message should be s
+    verify(mockModel, never()).makeGuess(anyInt(), anyInt()); // // makeGuess should NOT be called
+    verify(mockModel).startGame(); // but startGame should still be called
+  }
+
+  /**
+   * Test "K5", "Z3", etc.
+   */
+  @Test
+  void playGame_shouldHandleInvalidRow() throws IOException {
+    StringReader invalidInput = new StringReader("K5\n");
+    controller = new BattleshipConsoleController(invalidInput, mockView);
+    when(mockModel.isGameOver()).thenReturn(false, true);
+
+    controller.playGame(mockModel);
+
+    verify(mockView).displayErrorMessage(anyString());
+    verify(mockModel, never()).makeGuess(anyInt(), anyInt());
+  }
+
+  /**
+   * Test "AB", "A@", etc.
+   */
+  @Test
+  void playGame_shouldHandleInvalidColumn() throws IOException {
+    StringReader invalidInput = new StringReader("A@\n");
+    controller = new BattleshipConsoleController(invalidInput, mockView);
+    when(mockModel.isGameOver()).thenReturn(false, true);
+
+    controller.playGame(mockModel);
+
+    verify(mockView).displayErrorMessage(anyString());
+    verify(mockModel, never()).makeGuess(anyInt(), anyInt());
+  }
 }
