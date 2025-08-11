@@ -35,7 +35,8 @@ public class BattleshipConsoleController implements IBattleshipController {
    * 3. Keep looping until game over
    * 4. Show final results
    *
-   * @param model takes model as parameter because different games might use different models
+   * @param model the battleship model to use for the game
+   * @throws IllegalArgumentException if the model is null
    */
   @Override
   public void playGame(IBattleshipModel model) {
@@ -50,42 +51,50 @@ public class BattleshipConsoleController implements IBattleshipController {
 
       // show welcome message and initial game state
       view.displayWelcomeMessage();
-      displayGameState(model);
+      view.displayGuessCount(model.getGuessCount());
+      view.displayMaxGuesses(model.getMaxGuesses());
+      view.displayCellGrid(model.getCellGrid());
 
       // main game loop
       while (!model.isGameOver()) {
         // ask user for input
         view.displayPromptMessage();
 
-        if (scanner.hasNextLine()) {
-          String userInput = scanner.nextLine().trim().toUpperCase(); // case insensitive + trim whitespace
+        // handle case where input stream ends
+        if (!scanner.hasNextLine()) {
+          break;
+        }
 
-          try {
-            // parse user input to get coordinates
-            int[] coordinates = parseGuess(userInput);
+        // case insensitive + trim whitespace
+        String userInput = scanner.nextLine().trim().toUpperCase();
 
-            // make the guess with parsed coordinates
-            boolean wasHit = model.makeGuess(coordinates[0], coordinates[1]);
+        try {
+          // parse user input to get coordinates
+          int[] coordinates = parseGuess(userInput);
 
-            // show the result to user
-            if(wasHit) {
-              view.displayHitMessage();
-            } else {
-              view.displayMissMessage();
-            }
+          // make the guess with parsed coordinates
+          boolean wasHit = model.makeGuess(coordinates[0], coordinates[1]);
 
-            // show updated game state
-            displayGameState(model);
-          } catch (IllegalArgumentException e) {
-            // bad input - user can fix it and continue:
-            // "AA" → show error → ask for input again
-            view.displayErrorMessage(e.getMessage());
-          } catch (IllegalStateException e) {
-            // game over - no point asking for more input:
-            // game over → show error → stop asking for input
-            view.displayErrorMessage(e.getMessage());
-            break;
+          // show the result to user
+          if(wasHit) {
+            view.displayHitMessage();
+          } else {
+            view.displayMissMessage();
           }
+
+          // show updated game state
+          view.displayGuessCount(model.getGuessCount());
+          view.displayMaxGuesses(model.getMaxGuesses());
+          view.displayCellGrid(model.getCellGrid());
+        } catch (IllegalArgumentException e) {
+          // bad input - user can fix it and continue:
+          // "AA" → show error → ask for input again
+          view.displayErrorMessage(e.getMessage());
+        } catch (IllegalStateException e) {
+          // game over - no point asking for more input:
+          // game over → show error → stop asking for input
+          view.displayErrorMessage(e.getMessage());
+          break;
         }
       }
 
@@ -95,19 +104,8 @@ public class BattleshipConsoleController implements IBattleshipController {
 
     } catch (IOException e) {
       // if view has trouble displaying (disk full, broken console, etc.)
-      System.err.println("Display error: " + e.getMessage());
+      throw new RuntimeException("I/O error during game execution: " + e.getMessage(), e);
     }
-  }
-
-  /**
-   * Helper method that displays the current game state information
-   * @param model the battleship model to get current game state from
-   * @throws IOException if there's an error displaying information to the user
-   */
-  private void displayGameState(IBattleshipModel model) throws IOException {
-    view.displayGuessCount(model.getGuessCount());
-    view.displayMaxGuesses(model.getMaxGuesses());
-    view.displayCellGrid(model.getCellGrid());
   }
 
   /**
@@ -119,34 +117,22 @@ public class BattleshipConsoleController implements IBattleshipController {
    */
   int[] parseGuess(String input) {
     // format validation
-    if (input == null || input.length() < 2) {
-      throw new IllegalArgumentException("Invalid input. Enter row (A-J) and column (0-9), e.g., A5");
+    if (input == null || input.length() != 2) {
+      throw new IllegalArgumentException("Invalid format. Use format like A5");
     }
 
     char rowChar = input.charAt(0); // get first character (row letter)
-    String colStr = input.substring(1); // get remaining characters (column number)
+    char colChar = input.charAt(1); // get second character (column number)
 
-    // check if row is valid letter (A-J)
-    if(rowChar < 'A' || rowChar > 'J') {
-      throw new IllegalArgumentException("Invalid column. Row must be A-J");
+    if (rowChar < 'A' || rowChar > 'J') {
+      throw new IllegalArgumentException("Row must be A-J");  // User sees this instead
     }
 
-    // parse and validate column number
-    int col;
-    try {
-      col = Integer.parseInt(colStr);
-    } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("Invalid column. Column must be a number");
-    }
-
-    // check if column is in valid range
-    if (col < 0 || col > 9) {
+    if (colChar < '0' || colChar > '9') {
       throw new IllegalArgumentException("Column must be 0-9");
     }
 
     // convert letters to numbers
-    int row = rowChar - 'A';
-
-    return new int[]{row, col};
+    return new int[]{rowChar - 'A', colChar - '0'};
   }
 }

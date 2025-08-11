@@ -1,86 +1,65 @@
 package battleship.controller;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import battleship.model.CellState;
 import battleship.model.IBattleshipModel;
 import battleship.model.ShipType;
 import battleship.view.IBattleshipView;
 
-import static org.junit.jupiter.api.Assertions.*;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for BattleshipConsoleController behavior.
- * Uses controlled input/output to test controller without user interaction.
+ * Manual mock tests for BattleshipConsoleController
+ * Uses controlled input/output to test controller without user interaction
  */
 class BattleshipConsoleControllerTest {
 
   private BattleshipConsoleController controller;
-  private MockBattleshipModel mockModel;
-  private MockBattleshipView mockView;
+  private MockModel mockModel;
+  private MockView mockView;
 
   @BeforeEach
   void setUp() {
-    mockModel = new MockBattleshipModel();
-    mockView = new MockBattleshipView();
+    mockModel = new MockModel();
+    mockView = new MockView();
   }
 
   /**
-   * Tests that controller calls model.startGame() when playGame() is executed.
-   *
-   * Why: Controller's primary responsibility is to initialize the game
-   * by calling the model's startGame() method.
+   * 1. Game Initialization
+   * Controller must coordinate game startup
    */
   @Test
   void playGame_shouldCallStartGame() {
     StringReader emptyInput = new StringReader("");
     controller = new BattleshipConsoleController(emptyInput, mockView);
 
-    // execute the controller's main method
     controller.playGame(mockModel);
 
-    // verify the controller called startGame() on the model
-    assertTrue(mockModel.wasStartGameCalled(), "Controller must call model.startGame() to initialize the game");
+    assertTrue(mockModel.startGameCalled, "Controller should call startGame()");
   }
 
   /**
-   * Tests that controller processes user input and calls model with correct coordinates.
-   *
-   * Why: Input parsing and model coordination is core controller functionality.
+   * 2. Input Processing
+   * Does "A5" become makeGuess(0, 5)?
    */
   @Test
   void playGame_shouldParseInputAndCallMakeGuess() {
-    // provide user input "A5"
-    StringReader userInput = new StringReader("A5\n");
-    controller = new BattleshipConsoleController(userInput, mockView);
+    StringReader input = new StringReader("A5\n");
+    controller = new BattleshipConsoleController(input, mockView);
+
     controller.playGame(mockModel);
 
-    assertTrue(mockModel.wasMakeGuessCalled());
-    assertTrue(mockModel.wasGuessAtCoordinates(0, 5));
+    assertTrue(mockModel.makeGuessCalled, "Controller should call makeGuess()");
+    assertEquals(0, mockModel.lastGuessRow, "A5 should be parsed as row=0");
+    assertEquals(5, mockModel.lastGuessCol, "A5 should be parsed as col=5");
   }
 
-  /**
-   * Tests that controller displays all required messages during game flow.
-   *
-   * Why: Verify controller provides complete user experience with all necessary displays.
-   */
-  @Test
-  void playGame_shouldDisplayAllRequiredMessages() {
-    StringReader userInput = new StringReader("A5\n");
-    controller = new BattleshipConsoleController(userInput, mockView);
-    controller.playGame(mockModel);
-
-    // verify all expected display calls were made
-    assertTrue(mockView.wasWelcomeMessageDisplayed(), "Should display welcome message");
-    assertTrue(mockView.wasPromptMessageDisplayed(), "Should display prompt for user input");
-    assertTrue(mockView.wasGuessCountDisplayed(), "Should display guess count");
-    assertTrue(mockView.wasMaxGuessesDisplayed(), "Should display max guesses");
-    assertTrue(mockView.wasCellGridDisplayed(), "Should display game grid");
-    assertTrue(mockView.wasHitMessageDisplayed() || mockView.wasMissMessageDisplayed(), "Should display hit or miss result");
-    assertTrue(mockView.wasGameOverDisplayed(), "Should display game over message");
-  }
-
+  // 3. Error Handling
   /**
    * Test "AA", "A", etc.
    */
@@ -88,10 +67,11 @@ class BattleshipConsoleControllerTest {
   void playGame_shouldHandleInvalidFormat() {
     StringReader invalidInput = new StringReader("AA\n");
     controller = new BattleshipConsoleController(invalidInput, mockView);
+
     controller.playGame(mockModel);
 
-    assertTrue(mockView.wasErrorMessageDisplayed(), "Should display error for invalid input");
-    assertFalse(mockModel.wasMakeGuessCalled(), "Should not call makeGuess for invalid input");
+    assertTrue(mockView.log.contains("error"), "Should display error for invalid input");
+    assertFalse(mockModel.makeGuessCalled, "Should not call makeGuess for invalid input");
   }
 
   /**
@@ -101,10 +81,11 @@ class BattleshipConsoleControllerTest {
   void playGame_shouldHandleInvalidRow() {
     StringReader invalidInput = new StringReader("K5\n");
     controller = new BattleshipConsoleController(invalidInput, mockView);
+
     controller.playGame(mockModel);
 
-    assertTrue(mockView.wasErrorMessageDisplayed(), "Should display error for invalid input");
-    assertFalse(mockModel.wasMakeGuessCalled(), "Should not call makeGuess for invalid input");
+    assertTrue(mockView.log.contains("error"), "Should display error for invalid input");
+    assertFalse(mockModel.makeGuessCalled, "Should not call makeGuess for invalid input");
   }
 
   /**
@@ -114,145 +95,145 @@ class BattleshipConsoleControllerTest {
   void playGame_shouldHandleInvalidColumn() {
     StringReader invalidInput = new StringReader("AB\n");
     controller = new BattleshipConsoleController(invalidInput, mockView);
+
     controller.playGame(mockModel);
 
-    assertTrue(mockView.wasErrorMessageDisplayed(), "Should display error for invalid input");
-    assertFalse(mockModel.wasMakeGuessCalled(), "Should not call makeGuess for invalid input");
+    assertTrue(mockView.log.contains("error"), "Should display error for invalid input");
+    assertFalse(mockModel.makeGuessCalled, "Should not call makeGuess for invalid input");
   }
 
-  private static class MockBattleshipModel implements IBattleshipModel {
+  /**
+   * 4. User Flow
+   * Does the complete game experience work?
+   */
+  @Test
+  void playGame_shouldProvideCompleteUserExperience() {
+    StringReader input = new StringReader("A5\n");
+    controller = new BattleshipConsoleController(input, mockView);
 
-    // Track method calls
-    private boolean startGameCalled = false; // track if startGame was called
-    private boolean makeGuessCalled = false; // track if makeGuess was called
-    private int lastGuessRow = -1; // remember row coordinate
-    private int lastGuessCol = -1; // remember column coordinate
-    private boolean gameOver = false; // stops loop
-    private int isGameOverCallCount = 0; // to enter the loop once
+    controller.playGame(mockModel);
+
+    // verify complete user experience sequence
+    List<String> expected = List.of(
+        "welcome",
+        "guessCount:0",
+        "maxGuesses:50",
+        "cellGrid",
+        "prompt",
+        "hit",
+        "guessCount:1",
+        "maxGuesses:50",
+        "cellGrid",
+        "gameOver you win",
+        "shipGrid"
+    );
+    assertEquals(expected, mockView.log, "Should provide complete user experience");
+  }
+
+  /**
+   * Minimal mock model for testing controller behavior.
+   * Only tracks essential calls and provides controllable behavior.
+   */
+  private static class MockModel implements IBattleshipModel {
+
+    // Method Call Tracking
+    boolean startGameCalled = false;
+    boolean makeGuessCalled = false;
+    int lastGuessRow = -1;
+    int lastGuessCol = -1;
 
     @Override
     public void startGame() {
-      this.startGameCalled = true; // record that this was called
+      startGameCalled = true; // record the call
     }
 
     @Override
     public boolean makeGuess(int row, int col) {
-      this.makeGuessCalled = true; // record that makeGuess was called
-      this.lastGuessRow = row; // remember the row that was guessed
-      this.lastGuessCol = col; // remember the column that was guessed
+      makeGuessCalled = true; // record the call
+      lastGuessRow = row;     // record the row that was guessed
+      lastGuessCol = col;     // record the column that was guessed
 
-      // return predictable result for testing: A5 (0,5) hits, everything else misses
-      return row == 0 && col == 5;
+      return true;  // always hit for simplicity
     }
 
     @Override
     public boolean isGameOver() {
-      isGameOverCallCount++; // count each time loop checks
-      return gameOver || isGameOverCallCount >= 2; // allow one loop iteration
+      return makeGuessCalled; // end after one guess
     }
 
-    // Check if startGame was called
-    public boolean wasStartGameCalled() {
-      return startGameCalled;
+    @Override
+    public int getGuessCount() {
+      return makeGuessCalled ? 1 : 0;
     }
 
-    // Check if makeGuess was called
-    public boolean wasMakeGuessCalled() {
-      return makeGuessCalled;
+    @Override
+    public boolean areAllShipsSunk() {
+      return makeGuessCalled;  // win after one guess
     }
 
-    // Check specific coordinates
-    public boolean wasGuessAtCoordinates(int row, int col) {
-      return makeGuessCalled && lastGuessRow == row && lastGuessCol == col;
-    }
-
-    // Let test control when game ends
-    public void setGameOver(boolean gameOver) {
-      this.gameOver = gameOver;
-    }
-
-    // all other methods stay the same
-    @Override public boolean areAllShipsSunk() { return false; }
-    @Override public int getGuessCount() { return 0; }
+    // Simple defaults for other methods
     @Override public int getMaxGuesses() { return 50; }
     @Override public CellState[][] getCellGrid() { return new CellState[10][10]; }
     @Override public ShipType[][] getShipGrid() { return new ShipType[10][10]; }
   }
 
-  private static class MockBattleshipView implements IBattleshipView {
+  /**
+   * Sequential logging view mock for testing controller behavior.
+   * Records every method call in order for comprehensive verification.
+   */
+  private static class MockView implements IBattleshipView {
 
-    // Track all display methods the controller uses
-    private boolean welcomeMessageDisplayed = false;
-    private boolean promptMessageDisplayed = false;
-    private boolean hitMessageDisplayed = false;
-    private boolean missMessageDisplayed = false;
-    private boolean errorMessageDisplayed = false;
-    private boolean gameOverDisplayed = false;
-    private boolean guessCountDisplayed = false;
-    private boolean maxGuessesDisplayed = false;
-    private boolean cellGridDisplayed = false;
-    private boolean shipGridDisplayed = false;  // Track end-game ship reveal
+    // Record calls in sequence
+    final List<String> log = new ArrayList<>();
 
     @Override
     public void displayWelcomeMessage() {
-      welcomeMessageDisplayed = true;
+      log.add("welcome");
     }
 
     @Override
     public void displayPromptMessage() {
-      promptMessageDisplayed = true;
+      log.add("prompt");
     }
 
     @Override
     public void displayHitMessage() {
-      hitMessageDisplayed = true;
+      log.add("hit");
     }
 
     @Override
     public void displayMissMessage() {
-      missMessageDisplayed = true;
+      log.add("miss");
     }
 
     @Override
     public void displayErrorMessage(String message) {
-      errorMessageDisplayed = true;
+      log.add("error");  // simple - just record that error was shown
     }
 
     @Override
     public void displayGameOver(boolean win) {
-      gameOverDisplayed = true;
+      log.add(win ? "gameOver you win" : "gameOver you lose");
     }
 
     @Override
-    public void displayGuessCount(int currentGuesses) {
-      guessCountDisplayed = true;
+    public void displayGuessCount(int count) {
+      log.add("guessCount:" + count);  // include the actual count
     }
 
     @Override
-    public void displayMaxGuesses(int maxGuesses) {
-      maxGuessesDisplayed = true;
+    public void displayMaxGuesses(int max) {
+      log.add("maxGuesses:" + max);
     }
 
     @Override
-    public void displayCellGrid(CellState[][] cellGrid) {
-      cellGridDisplayed = true;
+    public void displayCellGrid(CellState[][] grid) {
+      log.add("cellGrid");  // just record the call, not the content
     }
 
     @Override
-    public void displayShipGrid(ShipType[][] shipGrid) {
-      shipGridDisplayed = true;  // Track ship position reveal at game end
+    public void displayShipGrid(ShipType[][] grid) {
+      log.add("shipGrid");
     }
-
-    // Verification getters for all tracked methods
-    public boolean wasWelcomeMessageDisplayed() { return welcomeMessageDisplayed; }
-    public boolean wasPromptMessageDisplayed() { return promptMessageDisplayed; }
-    public boolean wasHitMessageDisplayed() { return hitMessageDisplayed; }
-    public boolean wasMissMessageDisplayed() { return missMessageDisplayed; }
-    public boolean wasErrorMessageDisplayed() { return errorMessageDisplayed; }
-    public boolean wasGameOverDisplayed() { return gameOverDisplayed; }
-    public boolean wasGuessCountDisplayed() { return guessCountDisplayed; }
-    public boolean wasMaxGuessesDisplayed() { return maxGuessesDisplayed; }
-    public boolean wasCellGridDisplayed() { return cellGridDisplayed; }
-    public boolean wasShipGridDisplayed() { return shipGridDisplayed; }  // NEW
   }
 }
