@@ -1,27 +1,17 @@
-# Battleship Game
+# Battleship Game - MVC Multi-UI
 
-A Java application demonstrating the Model-View-Controller (MVC) design pattern with multiple UI implementations and comprehensive testing
+A Java Battleship game demonstrating clean **MVC architecture** with **multiple UI implementations** and comprehensive testing
 
-## 📋 Overview
-
-This project implements a classic Battleship game where players guess ship locations on a 10x10 grid. The application showcases:
-
-- Clean **MVC architecture** with proper separation of concerns
-- **Multiple UI implementations** - Console and Swing GUI
+**Architecture & Design**
+- Clean **MVC pattern** with proper separation of concerns
+- **Multiple UI implementations** (Console + Swing GUI)
 - **Interface-based design** for flexibility and testability
-- **Input validation and error handling**
+- **Dependency Injection Pattern** and **loose coupling**
+- **SOLID principles** and clean code practices
+
+**Testing Strategy**
 - Comprehensive **unit testing** (model)
 - Both manual and Mockito **mock testing** (controller) to practice different mocking approaches
-- **Dependency Injection Pattern** and **loose coupling**
-- Best Practices: **SOLID principles**, **clean code**, and **professional testing strategies**
-
-This implementation showcases the power of MVC architecture:  
-
-- **Same Model, Multiple Views**: One game logic supports both console and GUI interfaces
-- **Loose Coupling**: Views and controllers can be swapped without affecting the model
-- **Testability**: Model logic tested independently of UI concerns
-- **Extensibility**: Easy to add new UI frameworks (web, mobile) using the same model
-- **Maintainability**: Changes to UI don't affect game logic and vice versa
 
 <div align="center">
   <table>
