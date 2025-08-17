@@ -3,7 +3,7 @@ import battleship.model.BattleshipModel;
 import battleship.view.BattleshipConsoleView;
 import java.io.InputStreamReader;
 
-public class Main {
+public class ConsoleApp {
 
   public static void main(String[] args) {
     BattleshipConsoleController controller = new BattleshipConsoleController(
