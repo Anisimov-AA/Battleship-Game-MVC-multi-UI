@@ -30,24 +30,28 @@ This implementation showcases the power of MVC architecture:
     </tr>
     <tr>
       <td style="text-align: center; padding: 10px;">
-        <img src="imgs/bg1.jpg" alt="Console Game Start" height="400"/>
+        <img src="imgs/bg1.jpg" alt="Game Start" height="400"/>
         <br><b>Game Start</b>
       </td>
       <td style="text-align: center; padding: 10px;">
-        <img src="imgs/bg2.jpg" alt="Console Gameplay" height="400"/>
+        <img src="imgs/bg2.jpg" alt="Gameplay" height="400"/>
         <br><b>Gameplay</b>
       </td>
     </tr>
-    <tr>
-      <th colspan="2" style="text-align: center; padding: 10px; font-size: 18px;">Swing GUI Interface</th>
+  </table>
+</div>
+
+<div align="center">
+  <table>
+    <th colspan="2" style="text-align: center; padding: 10px; font-size: 18px;">Swing GUI Interface</th>
     </tr>
     <tr>
       <td style="text-align: center; padding: 10px;">
-        <img src="imgs/bg3.png" alt="Swing Game Start" height="400"/>
+        <img src="imgs/bg3.png" alt="Game Start" height="400"/>
         <br><b>Game Start</b>
       </td>
       <td style="text-align: center; padding: 10px;">
-        <img src="imgs/bg4.png" alt="Swing Gameplay" height="400"/>
+        <img src="imgs/bg4.png" alt="Gameplay" height="400"/>
         <br><b>Gameplay</b>
       </td>
     </tr>
