@@ -20,11 +20,11 @@ A Java Battleship game demonstrating clean **MVC architecture** with **multiple 
     </tr>
     <tr>
       <td style="text-align: center; padding: 10px;">
-        <img src="imgs/bg1.jpg" alt="Game Start" height="400"/>
+        <img src="imgs/bg1.jpg" alt="Game Start" height="300"/>
         <br><b>Game Start</b>
       </td>
       <td style="text-align: center; padding: 10px;">
-        <img src="imgs/bg2.jpg" alt="Gameplay" height="400"/>
+        <img src="imgs/bg2.jpg" alt="Gameplay" height="300"/>
         <br><b>Gameplay</b>
       </td>
     </tr>
