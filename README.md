@@ -15,6 +15,14 @@ This project implements a classic Battleship game where players guess ship locat
 - **Dependency Injection Pattern** and **loose coupling**
 - Best Practices: **SOLID principles**, **clean code**, and **professional testing strategies**
 
+This implementation showcases the power of MVC architecture:  
+
+- **Same Model, Multiple Views**: One game logic supports both console and GUI interfaces
+- **Loose Coupling**: Views and controllers can be swapped without affecting the model
+- **Testability**: Model logic tested independently of UI concerns
+- **Extensibility**: Easy to add new UI frameworks (web, mobile) using the same model
+- **Maintainability**: Changes to UI don't affect game logic and vice versa
+
 <div align="center">
   <table>
     <tr>
@@ -35,25 +43,16 @@ This project implements a classic Battleship game where players guess ship locat
     </tr>
     <tr>
       <td style="text-align: center; padding: 10px;">
-        <img src="imgs/bg3.jpg" alt="Swing Game Start" height="400"/>
+        <img src="imgs/bg3.png" alt="Swing Game Start" height="400"/>
         <br><b>Game Start</b>
       </td>
       <td style="text-align: center; padding: 10px;">
-        <img src="imgs/bg4.jpg" alt="Swing Gameplay" height="400"/>
+        <img src="imgs/bg4.png" alt="Swing Gameplay" height="400"/>
         <br><b>Gameplay</b>
       </td>
     </tr>
   </table>
 </div>
-
-**MVC Benefits Demonstrated**  
-This implementation showcases the power of MVC architecture:  
-
-- **Same Model, Multiple Views**: One game logic supports both console and GUI interfaces
-- **Loose Coupling**: Views and controllers can be swapped without affecting the model
-- **Testability**: Model logic tested independently of UI concerns
-- **Extensibility**: Easy to add new UI frameworks (web, mobile) using the same model
-- **Maintainability**: Changes to UI don't affect game logic and vice versa
 
 ## 🎮 How to Play
 
