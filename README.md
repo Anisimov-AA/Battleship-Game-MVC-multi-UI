@@ -1,12 +1,13 @@
 # Battleship Game
 
-A Java console application demonstrating the Model-View-Controller (MVC) design pattern with comprehensive testing.
+A Java application demonstrating the Model-View-Controller (MVC) design pattern with multiple UI implementations and comprehensive testing
 
 ## 📋 Overview
 
 This project implements a classic Battleship game where players guess ship locations on a 10x10 grid. The application showcases:
 
 - Clean **MVC architecture** with proper separation of concerns
+- **Multiple UI implementations** - Console and Swing GUI
 - **Interface-based design** for flexibility and testability
 - **Input validation and error handling**
 - Comprehensive **unit testing** (model)
@@ -17,30 +18,65 @@ This project implements a classic Battleship game where players guess ship locat
 <div align="center">
   <table>
     <tr>
+      <th colspan="2" style="text-align: center; padding: 10px; font-size: 18px;">Console Interface</th>
+    </tr>
+    <tr>
       <td style="text-align: center; padding: 10px;">
-        <img src="imgs/bg1.jpg" alt="Game Start" height="400"/>
+        <img src="imgs/bg1.jpg" alt="Console Game Start" height="400"/>
         <br><b>Game Start</b>
       </td>
       <td style="text-align: center; padding: 10px;">
-        <img src="imgs/bg2.jpg" alt="Gameplay" height="400"/>
+        <img src="imgs/bg2.jpg" alt="Console Gameplay" height="400"/>
+        <br><b>Gameplay</b>
+      </td>
+    </tr>
+    <tr>
+      <th colspan="2" style="text-align: center; padding: 10px; font-size: 18px;">Swing GUI Interface</th>
+    </tr>
+    <tr>
+      <td style="text-align: center; padding: 10px;">
+        <img src="imgs/bg3.jpg" alt="Swing Game Start" height="400"/>
+        <br><b>Game Start</b>
+      </td>
+      <td style="text-align: center; padding: 10px;">
+        <img src="imgs/bg4.jpg" alt="Swing Gameplay" height="400"/>
         <br><b>Gameplay</b>
       </td>
     </tr>
   </table>
 </div>
 
+**MVC Benefits Demonstrated**  
+This implementation showcases the power of MVC architecture:  
+
+- **Same Model, Multiple Views**: One game logic supports both console and GUI interfaces
+- **Loose Coupling**: Views and controllers can be swapped without affecting the model
+- **Testability**: Model logic tested independently of UI concerns
+- **Extensibility**: Easy to add new UI frameworks (web, mobile) using the same model
+- **Maintainability**: Changes to UI don't affect game logic and vice versa
+
 ## 🎮 How to Play
 
-- Start the game: Run Main.java
+**Console Version**
+
+- Start the game: Run ConsoleApp.java
 - Enter coordinates: Type row letter (A-J) + column number (0-9), e.g., "A5"
 - View results: See HIT or MISS feedback and updated grid
 - Continue guessing: Find all ships before running out of 50 guesses
 - Game ends: Win by sinking all ships or lose after 50 guesses
 
+**Swing GUI Version**
+
+- Start the game: Run SwingApp.java
+- Click coordinates: Click on grid cells to make guesses
+- Visual feedback: See immediate color-coded HIT/MISS results
+
 ## 🚀 Features
 
 - Ship Placement: Random placement of 5 ships (Aircraft Carrier, Battleship, Submarine, Destroyer, Patrol Boat)
-- Interactive Gameplay: Console-based user interface with coordinate input (e.g., A5, J9)
+- Multiple Interfaces:
+  - Console-based interface with text input
+  - Swing GUI with clickable grid interface
 - Input Validation:
   - Coordinate format checking (letter + number)
   - Range validation (A-J for rows, 0-9 for columns)
@@ -64,11 +100,14 @@ src/main/java/battleship/
 │   └── CellState.java                                 # Cell state enumeration
 ├── view/
 │   ├── IBattleshipView.java                           # View interface
-│   └── BattleshipConsoleView.java                     # Console UI implementation
+│   ├── BattleshipConsoleView.java                     # Console UI implementation
+│   └── SwingBattleshipView.java                       # Swing GUI implementation
 ├── controller/
 │   ├── IBattleshipController.java                     # Controller interface
-│   └── BattleshipConsoleController.java               # Controller implementation
-└── Main.java                                          # Application entry point
+│   ├── BattleshipConsoleController.java               # Console controller implementation
+│   └── SwingBattleshipController.java                 # Swing controller implementation
+├── ConsoleApp.java                                    # Console application entry point
+└── SwingApp.java                                      # Swing application entry point
 
 src/test/java/battleship/
 ├── model/
@@ -85,6 +124,7 @@ src/test/java/battleship/
 ## 🛠️ Technologies
 
 Java 17+ - Core language  
+Swing - GUI framework
 JUnit 5 - Testing framework  
 Mockito 5.9.0 - Mocking framework for controller tests  
   
